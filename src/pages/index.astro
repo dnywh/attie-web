@@ -13,8 +13,9 @@ export const prerender = false;
 // const test = await import.meta.env.FD_AUTH_TOKEN;
 
 import { get } from "./api/matches.js";
-import { date } from "astro:schema";
-const data = await get();
+const { body: groupedMatches } = await get(); // Extract the body property
+// console.log(groupedMatches);
+
 // const matches = Array.from(data.matches);
 // console.log(matches);
 // const matchExample = body.data.matches[0].awayTeam.shortName;
@@ -51,22 +52,31 @@ const data = await get();
       });
     </script>
 
-    <div role="list" class="link-card-grid">
+    <ul>
       {
-        data.map((match) => (
-          <Card
-            matchStatus={match.status}
-            matchDate={match.utcDate}
-            homeCrest={match.homeTeam.crest}
-            awayCrest={match.awayTeam.crest}
-            homeName={match.homeTeam.shortName}
-            homeScore={match.score.fullTime.home}
-            awayName={match.awayTeam.shortName}
-            awayScore={match.score.fullTime.away}
-          />
+        Object.entries(groupedMatches).map(([date, matches]) => (
+          <li>
+            <h3>{date}</h3>
+            <ul>
+              {matches.map((match) => (
+                <li>
+                  <Card
+                    matchStatus={match.status}
+                    matchDate={match.utcDate}
+                    homeCrest={match.homeTeam.crest}
+                    awayCrest={match.awayTeam.crest}
+                    homeName={match.homeTeam.shortName}
+                    homeScore={match.score.fullTime.home}
+                    awayName={match.awayTeam.shortName}
+                    awayScore={match.score.fullTime.away}
+                  />
+                </li>
+              ))}
+            </ul>
+          </li>
         ))
       }
-    </div>
+    </ul>
   </main>
 </Layout>
 
