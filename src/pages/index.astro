@@ -15,12 +15,6 @@ export const prerender = false;
 import { get } from "./api/matches.js";
 const { body: groupedMatches } = await get(); // Extract the body property
 
-let showFutureGames = false;
-
-function toggleFutureGames() {
-  showFutureGames = !showFutureGames;
-}
-
 const now = new Date();
 ---
 
@@ -44,18 +38,19 @@ const now = new Date();
 
     <script>
       // Show or hide scores depending on toggle (checkbox) value
-      const checkbox = document.querySelector(".scores-control input");
+      const checkboxes = document.querySelectorAll(
+        'input[type="checkbox"]'
+      ) as NodeListOf<HTMLInputElement>;
       const cards = document.querySelectorAll(".link-card");
-      checkbox.addEventListener("change", (event) => {
-        if (event.currentTarget.checked) {
-          cards.forEach((element) => {
-            element.classList.add("scores-shown");
-          });
-        } else {
-          cards.forEach((element) => {
-            element.classList.remove("scores-shown");
-          });
-        }
+
+      checkboxes.forEach((checkbox) => {
+        checkbox.addEventListener("change", () => {
+          if (checkbox.checked) {
+            cards.forEach((card) => card.classList.add("scores-shown"));
+          } else {
+            cards.forEach((card) => card.classList.remove("scores-shown"));
+          }
+        });
       });
     </script>
 
@@ -67,7 +62,7 @@ const now = new Date();
             <li id="future-games" class="game-cluster">
               <h3>{date}</h3>
               <ul>
-                {matches.map((match) => (
+                {matches.map((match: any) => (
                   <li>
                     <Card
                       matchStatus={match.status}
@@ -93,7 +88,7 @@ const now = new Date();
             <li id="today-or-older-matches" class="game-cluster">
               <h3>{date}</h3>
               <ul>
-                {matches.map((match) => (
+                {matches.map((match: any) => (
                   <li>
                     <Card
                       matchStatus={match.status}
@@ -117,8 +112,6 @@ const now = new Date();
       const todayOrOlderMatches = document.querySelector(
         "#today-or-older-matches"
       );
-      const futureMatches = document.querySelector("#future-matches");
-
       window.addEventListener("DOMContentLoaded", () => {
         if (todayOrOlderMatches) {
           const yOffset =
