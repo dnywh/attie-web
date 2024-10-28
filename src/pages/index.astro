@@ -30,13 +30,17 @@ const now = new Date();
     <!-- <h1>User</h1>
     <h2>{randomUser.name.first} {randomUser.name.last}</h2>
     <h3>{randomUser.location.city}, {randomUser.location.country}</h3> -->
-    <h1>Attie</h1>
-
-    <div class="scores-control">
-      <!-- https://danklammer.com/articles/simple-css-toggle-switch/ -->
-      <span>Scores</span>
-      <input class="toggle" type="checkbox" />
-    </div>
+    <header>
+      <nav>
+        <div class="scores-control">
+          <!-- https://danklammer.com/articles/simple-css-toggle-switch/ -->
+          <span>Scores</span>
+          <input class="toggle" type="checkbox" />
+        </div>
+        <h1>Attie</h1>
+        <a href="#today-or-older-matches">Today</a>
+      </nav>
+    </header>
 
     <script>
       // Show or hide scores depending on toggle (checkbox) value
@@ -55,14 +59,12 @@ const now = new Date();
       });
     </script>
 
-    <button id="load-future-button">Load Future Games</button>
-
     <ul>
       {
         Object.entries(groupedMatches)
           .filter(([date]) => new Date(date) >= now)
           .map(([date, matches]) => (
-            <li id="future-games" class="hidden">
+            <li id="future-games" class="game-cluster">
               <h3>{date}</h3>
               <ul>
                 {matches.map((match) => (
@@ -88,7 +90,7 @@ const now = new Date();
         Object.entries(groupedMatches)
           .filter(([date]) => new Date(date) < now)
           .map(([date, matches]) => (
-            <li>
+            <li id="today-or-older-matches" class="game-cluster">
               <h3>{date}</h3>
               <ul>
                 {matches.map((match) => (
@@ -112,30 +114,60 @@ const now = new Date();
     </ul>
 
     <script>
-      let showFutureGames = false; // Initialize showFutureGames here
+      const todayOrOlderMatches = document.querySelector(
+        "#today-or-older-matches"
+      );
+      const futureMatches = document.querySelector("#future-matches");
 
-      const loadFutureButton = document.querySelector("#load-future-button");
-      const futureGamesList = document.querySelector("#future-games");
-      if (loadFutureButton) {
-        loadFutureButton.addEventListener("click", () => {
-          showFutureGames = !showFutureGames;
-          // You'll need to re-render the list here
-          if (showFutureGames) {
-            futureGamesList?.classList.remove("hidden");
-          } else {
-            futureGamesList?.classList.add("hidden");
-          }
-          // This might involve fetching the list again or manipulating the DOM
-          console.log("Button clicked, showFutureGames:", showFutureGames);
-        });
-      }
+      window.addEventListener("DOMContentLoaded", () => {
+        if (todayOrOlderMatches) {
+          const yOffset =
+            todayOrOlderMatches.getBoundingClientRect().top + window.scrollY;
+          window.scrollTo({ top: yOffset, behavior: "auto" }); // Instant scroll
+        }
+        // Enable smooth scrolling after the initial scroll
+        document.documentElement.style.scrollBehavior = "smooth";
+      });
     </script>
   </main>
 
   <style>
-    .hidden {
+    /* .hidden {
       display: none;
+    } */
+    ul {
+      list-style-type: none;
+      padding-left: 0;
     }
+
+    header {
+      position: sticky;
+
+      background-color: black;
+      top: 0;
+      z-index: 1;
+
+      nav {
+        display: flex;
+        flex-direction: row;
+        align-items: baseline;
+        justify-content: space-between;
+      }
+
+      h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1;
+        text-align: center;
+        margin-bottom: 1em;
+      }
+    }
+
+    .game-cluster {
+      /* Set to equal height of navigation */
+      padding-top: 6rem;
+    }
+
     .scores-control {
       display: flex;
       gap: 0.5rem;
@@ -211,13 +243,7 @@ const now = new Date();
       height: auto;
       z-index: -1;
     }
-    h1 {
-      font-size: 4rem;
-      font-weight: 700;
-      line-height: 1;
-      text-align: center;
-      margin-bottom: 1em;
-    }
+
     .text-gradient {
       background-image: var(--accent-gradient);
       -webkit-background-clip: text;
