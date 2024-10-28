@@ -36,12 +36,51 @@ function formatMatchStatus(status: any) {
       return status;
   }
 }
+
+function formatDate(dateString: string) {
+  const date = new Date(dateString);
+
+  // Check for relative dates (yesterday, today, tomorrow)
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  if (date.toDateString() === today.toDateString()) {
+    return "Today";
+  } else if (date.toDateString() === yesterday.toDateString()) {
+    return "Yesterday";
+  } else if (date.toDateString() === tomorrow.toDateString()) {
+    return "Tomorrow";
+  }
+
+  // Format the date (e.g., "27th October 2024")
+  const options = { day: "numeric", month: "long", year: "numeric" };
+  let formattedDate = date.toLocaleDateString("en-GB", options);
+
+  // Add ordinal suffixes (st, nd, rd, th)
+  const day = date.getDate();
+  const suffixes = ["th", "st", "nd", "rd"]; // Reordered suffixes
+  const specialCases = [11, 12, 13];
+  let suffixIndex = 0; // Default to 'th'
+  if (!specialCases.includes(day % 100)) {
+    suffixIndex =
+      Math.min(day % 10, 4) - (day % 10 > 10 && day % 10 < 14 ? 1 : 0);
+  }
+
+  const parts = formattedDate.split(" ");
+  parts[0] = parts[0] + suffixes[suffixIndex];
+  formattedDate = parts.join(" ");
+
+  return formattedDate;
+}
 ---
 
 <article class="link-card">
   <header>
     <h2>
-      {matchDate}
+      {formatDate(matchDate)}
     </h2>
 
     {
