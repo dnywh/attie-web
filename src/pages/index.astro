@@ -14,11 +14,14 @@ export const prerender = false;
 
 import { get } from "./api/matches.js";
 const { body: groupedMatches } = await get(); // Extract the body property
-// console.log(groupedMatches);
 
-// const matches = Array.from(data.matches);
-// console.log(matches);
-// const matchExample = body.data.matches[0].awayTeam.shortName;
+let showFutureGames = false;
+
+function toggleFutureGames() {
+  showFutureGames = !showFutureGames;
+}
+
+const now = new Date();
 ---
 
 <Layout title="Welcome to Astro.">
@@ -52,149 +55,202 @@ const { body: groupedMatches } = await get(); // Extract the body property
       });
     </script>
 
+    <button id="load-future-button">Load Future Games</button>
+
     <ul>
       {
-        Object.entries(groupedMatches).map(([date, matches]) => (
-          <li>
-            <h3>{date}</h3>
-            <ul>
-              {matches.map((match) => (
-                <li>
-                  <Card
-                    matchStatus={match.status}
-                    matchDate={match.utcDate}
-                    homeCrest={match.homeTeam.crest}
-                    awayCrest={match.awayTeam.crest}
-                    homeName={match.homeTeam.shortName}
-                    homeScore={match.score.fullTime.home}
-                    awayName={match.awayTeam.shortName}
-                    awayScore={match.score.fullTime.away}
-                  />
-                </li>
-              ))}
-            </ul>
-          </li>
-        ))
+        Object.entries(groupedMatches)
+          .filter(([date]) => new Date(date) >= now)
+          .map(([date, matches]) => (
+            <li id="future-games" class="hidden">
+              <h3>{date}</h3>
+              <ul>
+                {matches.map((match) => (
+                  <li>
+                    <Card
+                      matchStatus={match.status}
+                      matchDate={match.utcDate}
+                      homeCrest={match.homeTeam.crest}
+                      awayCrest={match.awayTeam.crest}
+                      homeName={match.homeTeam.shortName}
+                      homeScore={match.score.fullTime.home}
+                      awayName={match.awayTeam.shortName}
+                      awayScore={match.score.fullTime.away}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))
+      }
+
+      {
+        Object.entries(groupedMatches)
+          .filter(([date]) => new Date(date) < now)
+          .map(([date, matches]) => (
+            <li>
+              <h3>{date}</h3>
+              <ul>
+                {matches.map((match) => (
+                  <li>
+                    <Card
+                      matchStatus={match.status}
+                      matchDate={match.utcDate}
+                      homeCrest={match.homeTeam.crest}
+                      awayCrest={match.awayTeam.crest}
+                      homeName={match.homeTeam.shortName}
+                      homeScore={match.score.fullTime.home}
+                      awayName={match.awayTeam.shortName}
+                      awayScore={match.score.fullTime.away}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))
       }
     </ul>
+
+    <script>
+      let showFutureGames = false; // Initialize showFutureGames here
+
+      const loadFutureButton = document.querySelector("#load-future-button");
+      const futureGamesList = document.querySelector("#future-games");
+      if (loadFutureButton) {
+        loadFutureButton.addEventListener("click", () => {
+          showFutureGames = !showFutureGames;
+          // You'll need to re-render the list here
+          if (showFutureGames) {
+            futureGamesList?.classList.remove("hidden");
+          } else {
+            futureGamesList?.classList.add("hidden");
+          }
+          // This might involve fetching the list again or manipulating the DOM
+          console.log("Button clicked, showFutureGames:", showFutureGames);
+        });
+      }
+    </script>
   </main>
-</Layout>
 
-<style>
-  .scores-control {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    span {
-      font-size: 12pt;
+  <style>
+    .hidden {
+      display: none;
     }
-  }
-  /* Toggle */
-  .toggle {
-    appearance: none;
-    position: relative;
-    display: inline-block;
-    box-sizing: content-box;
-    width: 4.5em;
-    height: 2em;
-    padding: 0.2em;
-    border: none;
-    cursor: pointer;
-    border-radius: 1.5em;
-    overflow: hidden;
-    background-color: #707070;
-    transition: background ease 0.3s;
-  }
+    .scores-control {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      span {
+        font-size: 12pt;
+      }
+    }
+    /* Toggle */
+    .toggle {
+      appearance: none;
+      position: relative;
+      display: inline-block;
+      box-sizing: content-box;
+      width: 4.5em;
+      height: 2em;
+      padding: 0.2em;
+      border: none;
+      cursor: pointer;
+      border-radius: 1.5em;
+      overflow: hidden;
+      background-color: #707070;
+      transition: background ease 0.3s;
+    }
 
-  .toggle:before {
-    content: "on off";
-    display: block;
-    position: absolute;
-    z-index: 2;
-    width: 2em;
-    height: 2em;
-    font-family: system-ui;
-    font-size: 1em;
-    line-height: 2em;
-    font-weight: 500;
-    text-transform: uppercase;
-    text-indent: -2em;
-    word-spacing: 2.55em;
-    text-shadow: -1px -1px rgba(0, 0, 0, 0.15);
-    white-space: nowrap;
-    background: #fff;
-    color: #fff;
-    border-radius: 1.5em;
-    transition: transform cubic-bezier(0.3, 1.5, 0.7, 1) 0.3s;
-  }
+    .toggle:before {
+      content: "on off";
+      display: block;
+      position: absolute;
+      z-index: 2;
+      width: 2em;
+      height: 2em;
+      font-family: system-ui;
+      font-size: 1em;
+      line-height: 2em;
+      font-weight: 500;
+      text-transform: uppercase;
+      text-indent: -2em;
+      word-spacing: 2.55em;
+      text-shadow: -1px -1px rgba(0, 0, 0, 0.15);
+      white-space: nowrap;
+      background: #fff;
+      color: #fff;
+      border-radius: 1.5em;
+      transition: transform cubic-bezier(0.3, 1.5, 0.7, 1) 0.3s;
+    }
 
-  .toggle:checked {
-    background-color: #4cd964;
-  }
+    .toggle:checked {
+      background-color: #4cd964;
+    }
 
-  .toggle:checked:before {
-    transform: translateX(2.5em);
-    color: #000;
-  }
+    .toggle:checked:before {
+      transform: translateX(2.5em);
+      color: #000;
+    }
 
-  /* Everything else */
-  main {
-    margin: auto;
-    padding: 1rem;
-    width: 800px;
-    max-width: calc(100% - 2rem);
-    color: white;
-    font-size: 20px;
-    line-height: 1.6;
-  }
-  .astro-a {
-    position: absolute;
-    top: -32px;
-    left: 50%;
-    transform: translatex(-50%);
-    width: 220px;
-    height: auto;
-    z-index: -1;
-  }
-  h1 {
-    font-size: 4rem;
-    font-weight: 700;
-    line-height: 1;
-    text-align: center;
-    margin-bottom: 1em;
-  }
-  .text-gradient {
-    background-image: var(--accent-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-size: 400%;
-    background-position: 0%;
-  }
-  .instructions {
-    margin-bottom: 2rem;
-    border: 1px solid rgba(var(--accent-light), 25%);
-    background: linear-gradient(
-      rgba(var(--accent-dark), 66%),
-      rgba(var(--accent-dark), 33%)
-    );
-    padding: 1.5rem;
-    border-radius: 8px;
-  }
-  .instructions code {
-    font-size: 0.8em;
-    font-weight: bold;
-    background: rgba(var(--accent-light), 12%);
-    color: rgb(var(--accent-light));
-    border-radius: 4px;
-    padding: 0.3em 0.4em;
-  }
-  .instructions strong {
-    color: rgb(var(--accent-light));
-  }
-  .link-card-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(24ch, 1fr));
-    gap: 2rem;
-    padding: 0;
-  }
-</style>
+    /* Everything else */
+    main {
+      margin: auto;
+      padding: 1rem;
+      width: 800px;
+      max-width: calc(100% - 2rem);
+      color: white;
+      font-size: 20px;
+      line-height: 1.6;
+    }
+    .astro-a {
+      position: absolute;
+      top: -32px;
+      left: 50%;
+      transform: translatex(-50%);
+      width: 220px;
+      height: auto;
+      z-index: -1;
+    }
+    h1 {
+      font-size: 4rem;
+      font-weight: 700;
+      line-height: 1;
+      text-align: center;
+      margin-bottom: 1em;
+    }
+    .text-gradient {
+      background-image: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 400%;
+      background-position: 0%;
+    }
+    .instructions {
+      margin-bottom: 2rem;
+      border: 1px solid rgba(var(--accent-light), 25%);
+      background: linear-gradient(
+        rgba(var(--accent-dark), 66%),
+        rgba(var(--accent-dark), 33%)
+      );
+      padding: 1.5rem;
+      border-radius: 8px;
+    }
+    .instructions code {
+      font-size: 0.8em;
+      font-weight: bold;
+      background: rgba(var(--accent-light), 12%);
+      color: rgb(var(--accent-light));
+      border-radius: 4px;
+      padding: 0.3em 0.4em;
+    }
+    .instructions strong {
+      color: rgb(var(--accent-light));
+    }
+    .link-card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(24ch, 1fr));
+      gap: 2rem;
+      padding: 0;
+    }
+  </style>
+</Layout>
