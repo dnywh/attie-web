@@ -38,21 +38,43 @@ function formatMatchStatus(status: any) {
 }
 
 function formatDate(dateString: string) {
-  const date = new Date(dateString);
+  const date = new Date(dateString); // Assuming dateString is in UTC
 
-  // Check for relative dates (yesterday, today, tomorrow)
+  // Ensure consistent timezones
   const today = new Date();
   const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
+  yesterday.setUTCDate(today.getUTCDate() - 1);
   const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setUTCDate(today.getUTCDate() + 1);
 
-  if (date.toDateString() === today.toDateString()) {
-    return "Today";
-  } else if (date.toDateString() === yesterday.toDateString()) {
-    return "Yesterday";
-  } else if (date.toDateString() === tomorrow.toDateString()) {
-    return "Tomorrow";
+  // Compare dates in UTC
+  if (
+    date.getUTCDate() === today.getUTCDate() &&
+    date.getUTCMonth() === today.getUTCMonth() &&
+    date.getUTCFullYear() === today.getUTCFullYear()
+  ) {
+    return (
+      "Today at " +
+      date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
+    );
+  } else if (
+    date.getUTCDate() === yesterday.getUTCDate() &&
+    date.getUTCMonth() === yesterday.getUTCMonth() &&
+    date.getUTCFullYear() === yesterday.getUTCFullYear()
+  ) {
+    return (
+      "Yesterday at " +
+      date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
+    );
+  } else if (
+    date.getUTCDate() === tomorrow.getUTCDate() &&
+    date.getUTCMonth() === tomorrow.getUTCMonth() &&
+    date.getUTCFullYear() === tomorrow.getUTCFullYear()
+  ) {
+    return (
+      "Tomorrow at " +
+      date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
+    );
   }
 
   const options: Intl.DateTimeFormatOptions = {
@@ -61,13 +83,16 @@ function formatDate(dateString: string) {
     month: "short",
   };
 
-  const timeOptions: Intl.DateTimeFormatOptions = {
-    hour: "numeric",
-  };
-  let formattedDate = `${date.toLocaleDateString("en-GB", options)} at ${date.toLocaleDateString("en-GB", timeOptions)}`;
-
-  return formattedDate;
+  return (
+    date.toLocaleDateString("en-GB", options) +
+    " at " +
+    date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
+  );
 }
+
+// Example usage:
+const dateString = "2024-11-03T17:30:00Z";
+console.log(formatDate(dateString)); // Output (if run on Nov 2nd): "Tomorrow at 5:30 PM"
 ---
 
 <article class="link-card">
