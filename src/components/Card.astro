@@ -55,27 +55,16 @@ function formatDate(dateString: string) {
     return "Tomorrow";
   }
 
-  // Format the date (e.g., "27th October 2024")
   const options: Intl.DateTimeFormatOptions = {
     day: "numeric",
-    month: "long",
-    year: "numeric",
+    weekday: "short",
+    month: "short",
   };
-  let formattedDate = date.toLocaleDateString("en-GB", options);
 
-  // Add ordinal suffixes (st, nd, rd, th)
-  const day = date.getDate();
-  const suffixes = ["th", "st", "nd", "rd"]; // Reordered suffixes
-  const specialCases = [11, 12, 13];
-  let suffixIndex = 0; // Default to 'th'
-  if (!specialCases.includes(day % 100)) {
-    suffixIndex =
-      Math.min(day % 10, 4) - (day % 10 > 10 && day % 10 < 14 ? 1 : 0);
-  }
-
-  const parts = formattedDate.split(" ");
-  parts[0] = parts[0] + suffixes[suffixIndex];
-  formattedDate = parts.join(" ");
+  const timeOptions: Intl.DateTimeFormatOptions = {
+    hour: "numeric",
+  };
+  let formattedDate = `${date.toLocaleDateString("en-GB", options)} at ${date.toLocaleDateString("en-GB", timeOptions)}`;
 
   return formattedDate;
 }
@@ -84,7 +73,7 @@ function formatDate(dateString: string) {
 <article class="link-card">
   <header>
     <h3>
-      {formatDate(matchDate)} at Xpm
+      {formatDate(matchDate)}
     </h3>
 
     {

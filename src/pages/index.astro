@@ -71,9 +71,9 @@ const now = new Date();
                       homeCrest={match.homeTeam.crest}
                       awayCrest={match.awayTeam.crest}
                       homeName={match.homeTeam.shortName}
-                      homeScore="0"
+                      homeScore={match.score.fullTime.home}
                       awayName={match.awayTeam.shortName}
-                      awayScore="0"
+                      awayScore={match.score.fullTime.away}
                     />
                   </li>
                 ))}
