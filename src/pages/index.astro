@@ -12,8 +12,8 @@ export const prerender = false;
 
 // const test = await import.meta.env.FD_AUTH_TOKEN;
 
-import { get } from "./api/matches.js";
-const { body: groupedMatches } = await get(); // Extract the body property
+import { getMatchData } from "./api/matches.js";
+const { body: groupedMatches } = await getMatchData(); // Extract the body property
 
 const now = new Date();
 ---
