@@ -38,43 +38,35 @@ function formatMatchStatus(status: any) {
 }
 
 function formatDate(dateString: string) {
-  const date = new Date(dateString); // Assuming dateString is in UTC
+  // dateString is now a LOCAL date string
+  const date = new Date(dateString);
 
-  // Ensure consistent timezones
+  // Get today's date in the local timezone
   const today = new Date();
   const yesterday = new Date(today);
-  yesterday.setUTCDate(today.getUTCDate() - 1);
+  yesterday.setDate(yesterday.getDate() - 1);
   const tomorrow = new Date(today);
-  tomorrow.setUTCDate(today.getUTCDate() + 1);
+  tomorrow.setDate(tomorrow.getDate() + 1);
 
-  // Compare dates in UTC
+  // Comparisons remain the same since we're now in the local timezone
   if (
-    date.getUTCDate() === today.getUTCDate() &&
-    date.getUTCMonth() === today.getUTCMonth() &&
-    date.getUTCFullYear() === today.getUTCFullYear()
+    date.getDate() === today.getDate() &&
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear()
   ) {
-    return (
-      "Today at " +
-      date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
-    );
+    return "Today at " + formatTime(date);
   } else if (
-    date.getUTCDate() === yesterday.getUTCDate() &&
-    date.getUTCMonth() === yesterday.getUTCMonth() &&
-    date.getUTCFullYear() === yesterday.getUTCFullYear()
+    date.getDate() === yesterday.getDate() &&
+    date.getMonth() === yesterday.getMonth() &&
+    date.getFullYear() === yesterday.getFullYear()
   ) {
-    return (
-      "Yesterday at " +
-      date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
-    );
+    return "Yesterday at " + formatTime(date);
   } else if (
-    date.getUTCDate() === tomorrow.getUTCDate() &&
-    date.getUTCMonth() === tomorrow.getUTCMonth() &&
-    date.getUTCFullYear() === tomorrow.getUTCFullYear()
+    date.getDate() === tomorrow.getDate() &&
+    date.getMonth() === tomorrow.getMonth() &&
+    date.getFullYear() === tomorrow.getFullYear()
   ) {
-    return (
-      "Tomorrow at " +
-      date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
-    );
+    return "Tomorrow at " + formatTime(date);
   }
 
   const options: Intl.DateTimeFormatOptions = {
@@ -83,16 +75,23 @@ function formatDate(dateString: string) {
     month: "short",
   };
 
-  return (
-    date.toLocaleDateString("en-GB", options) +
-    " at " +
-    date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
-  );
+  return date.toLocaleDateString("en-GB", options) + " at " + formatTime(date);
+}
+
+function formatTime(date: Date): string {
+  let hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  const minutesString =
+    minutes === 0 ? "" : `:${minutes.toString().padStart(2, "0")}`;
+  return `${hours}${minutesString} ${ampm}`;
 }
 
 // Example usage:
-const dateString = "2024-11-03T17:30:00Z";
-console.log(formatDate(dateString)); // Output (if run on Nov 2nd): "Tomorrow at 5:30 PM"
+const dateString = "03/11/2024"; // Example local date string (adjust format as needed)
+console.log(formatDate(dateString));
 ---
 
 <article class="link-card">
