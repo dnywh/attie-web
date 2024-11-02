@@ -6,7 +6,7 @@ const authToken = await import.meta.env.FD_AUTH_TOKEN
 
 
 export async function getMatchData() {
-    const uselocalData = true;
+    const uselocalData = false;
     let matches;
 
     if (uselocalData) {
